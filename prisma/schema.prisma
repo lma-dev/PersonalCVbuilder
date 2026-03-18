@@ -5,7 +5,157 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-// TODO: Add models here
+// ─── Users ───────────────────────────────────────────────────────────────────
+// Core user account. One user can own many resumes.
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  resumes Resume[]
+
+  @@map("users")
+}
+
+// ─── Resumes (main entity) ───────────────────────────────────────────────────
+// Each resume belongs to one user. Personal info is merged directly here
+// to avoid an unnecessary 1:1 join table.
+
+enum ResumeStatus {
+  DRAFT
+  FINAL
+}
+
+enum LanguageMode {
+  EN
+  JP
+  BOTH
+}
+
+model Resume {
+  id           String       @id @default(cuid())
+  userId       String       @map("user_id")
+  title        String
+  status       ResumeStatus @default(DRAFT)
+  languageMode LanguageMode @default(BOTH) @map("language_mode")
+
+  // Personal info (merged from old cv_basics)
+  fullName    String    @map("full_name")
+  email       String?
+  phone       String?
+  address     String?
+  nationality String?
+  dateOfBirth DateTime? @map("date_of_birth")
+  gender      String?
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  educations     ResumeEducation[]
+  experiences    ResumeExperience[]
+  skills         ResumeSkill[]
+  certifications ResumeCertification[]
+
+  @@index([userId])
+  @@map("resumes")
+}
+
+// ─── Resume Educations (1:N) ─────────────────────────────────────────────────
+
+model ResumeEducation {
+  id         String    @id @default(cuid())
+  resumeId   String    @map("resume_id")
+  startDate  DateTime  @map("start_date")
+  endDate    DateTime? @map("end_date")
+  schoolName String    @map("school_name")
+  major      String?
+  status     String?
+  sortOrder  Int       @default(0) @map("sort_order")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@map("resume_educations")
+}
+
+// ─── Resume Experiences (1:N) ────────────────────────────────────────────────
+// Each experience can have nested projects.
+
+model ResumeExperience {
+  id             String    @id @default(cuid())
+  resumeId       String    @map("resume_id")
+  companyName    String    @map("company_name")
+  employmentType String?   @map("employment_type")
+  startDate      DateTime  @map("start_date")
+  endDate        DateTime? @map("end_date")
+  sortOrder      Int       @default(0) @map("sort_order")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  resume   Resume          @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  projects ResumeProject[]
+
+  @@index([resumeId])
+  @@map("resume_experiences")
+}
+
+// ─── Resume Projects (nested under experiences) ──────────────────────────────
+// Supports bilingual descriptions and a JSON array for technologies.
+
+model ResumeProject {
+  id            String   @id @default(cuid())
+  experienceId  String   @map("experience_id")
+  projectName   String   @map("project_name")
+  descriptionEn String?  @map("description_en")
+  descriptionJp String?  @map("description_jp")
+  technologies  Json     @default("[]")
+  sortOrder     Int      @default(0) @map("sort_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  experience ResumeExperience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+
+  @@index([experienceId])
+  @@map("resume_projects")
+}
+
+// ─── Resume Skills (categorized) ─────────────────────────────────────────────
+
+model ResumeSkill {
+  id        String   @id @default(cuid())
+  resumeId  String   @map("resume_id")
+  category  String
+  name      String
+  level     String?
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@map("resume_skills")
+}
+
+// ─── Resume Certifications ───────────────────────────────────────────────────
+
+model ResumeCertification {
+  id        String   @id @default(cuid())
+  resumeId  String   @map("resume_id")
+  date      DateTime
+  name      String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId])
+  @@map("resume_certifications")
+}
