@@ -1,7 +1,6 @@
 // NOTE: This file will work after running `pnpm prisma generate`
 // which creates the Prisma client at app/generated/prisma/
 
-// @ts-expect-error - Generated client does not exist until `prisma generate` is run
 import { PrismaClient } from "@/app/generated/prisma";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";

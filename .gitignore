@@ -19,9 +19,11 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
 
 # debug
@@ -30,18 +32,79 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# ========================
+# Environment & Secrets
+# ========================
 .env
-.env.local
-.env.production
-.env.development
+.env.*
+!.env.example
+*.secret
+*.key
+*.p12
+*.pfx
+*.crt
+*.csr
+*.jks
 
-# prisma generated
+# ========================
+# Credentials & Auth
+# ========================
+credentials.json
+service-account*.json
+*-credentials.json
+*.credential
+token.json
+
+# ========================
+# IDE & Editor
+# ========================
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ========================
+# Docker
+# ========================
+docker-compose.override.yml
+
+# ========================
+# Prisma generated
+# ========================
 app/generated/prisma/
 
-# vercel
+# ========================
+# Vercel
+# ========================
 .vercel
 
-# typescript
+# ========================
+# TypeScript
+# ========================
 *.tsbuildinfo
 next-env.d.ts
+
+# ========================
+# Logs
+# ========================
+logs/
+*.log
+
+# ========================
+# Backup files
+# ========================
+*.bak
+*.backup
+*.sql.gz
+*.dump

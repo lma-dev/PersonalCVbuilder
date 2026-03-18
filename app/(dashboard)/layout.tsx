@@ -1,12 +1,9 @@
+import { DashboardShell } from "@/components/layout/DashboardShell";
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  return (
-    <div className="flex min-h-screen">
-      {/* TODO: Sidebar */}
-      <main className="flex-1">{children}</main>
-    </div>
-  );
+  return <DashboardShell>{children}</DashboardShell>;
 }

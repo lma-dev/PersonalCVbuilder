@@ -18,9 +18,28 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  resumes Resume[]
+  resumes            Resume[]
+  passwordResetTokens PasswordResetToken[]
 
   @@map("users")
+}
+
+// ─── Password Reset Tokens ──────────────────────────────────────────────────
+// Short-lived tokens for the forgot-password flow.
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("password_reset_tokens")
 }
 
 // ─── Resumes (main entity) ───────────────────────────────────────────────────

@@ -27,7 +27,7 @@ Edit `.env` with your local database credentials. See `.env.example` for all ava
 Create the database:
 
 ```bash
-psql -c "CREATE DATABASE spring_liberation_rose;"
+psql -c "CREATE DATABASE personal_cv_builder;"
 ```
 
 Run migrations:
